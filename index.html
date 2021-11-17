@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New EBs Teachers</title>
+    <script src="fileSaver.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <h1>Processing EB Elementary Report</h1>
+
+    <label for="old-lep">Select the previous EB report:</label>
+    <input type="file" id="old-lep" accept=".csv" />
+    <br /><br />
+
+    <label for="new-lep">Select the new EB report:</label>
+    <input type="file" id="new-lep" accept=".csv" />
+    <br /><br />
+
+    <label for="certifications">Select the certifications file:</label>
+    <input type="file" id="certifications" accept=".csv" />
+    <br /><br />
+
+    <button onclick="startProcess()">Start the Process</button>
+    <br /><br />
+
+    <div class="main-screen"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
