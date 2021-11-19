@@ -155,6 +155,8 @@ async function startProcess() {
     const foundTeacherArray = certificationsArray.filter(el => el.id === tid);
 
     if (foundTeacherArray.length > 0) {
+      const multiCert = foundTeacherArray.length > 1 ? 'Y' : '';
+
       foundTeacherArray.forEach(t => {
         const resultObject = {
           studentId: el.id,
@@ -175,6 +177,7 @@ async function startProcess() {
           teacherCertType: t.type,
           teacherCertEffective: t.effective,
           teacherCertExpiration: t.expiration,
+          teacherMultipleCert: multiCert,
         };
         resultArray.push(resultObject);
       });
@@ -198,6 +201,7 @@ async function startProcess() {
         teacherCertType: 'Not Found',
         teacherCertEffective: 'Not Found',
         teacherCertExpiration: 'Not Found',
+        teacherMultipleCert: '',
       };
       resultArray.push(resultObject);
     }
@@ -209,9 +213,9 @@ async function startProcess() {
 }
 
 function performChecks() {
-  resultArray.forEach(el => {
-    console.log(JSON.parse(JSON.stringify(el)));
+  let prevAnalysis = '';
 
+  resultArray.forEach((el, index) => {
     let analysisMessage = '';
 
     if (el.studentEslProgram === '2' || el.studentEslProgram === '3') {
@@ -417,12 +421,47 @@ function performChecks() {
     }
 
     if (analysisMessage === '') {
-      analysisMessage = 'Certification in compliance. ';
+      analysisMessage = 'Certification in compliance.';
     }
 
-    el.analysis = analysisMessage;
+    // Process for multiple certifications *********************
+    if (el.teacherMultipleCert === 'Y') {
+      prevAnalysis += analysisMessage;
 
-    console.log(el);
+      if (el.studentId === resultArray[index + 1].studentId) {
+        analysisMessage = 'Multiple Certifications. See row below.';
+      } else {
+        if (prevAnalysis.includes('Certification in compliance.')) {
+          analysisMessage = 'Certification in compliance.';
+        } else {
+          analysisMessage = prevAnalysis;
+        }
+
+        prevAnalysis = '';
+      }
+    }
+    // END ******************************************************
+
+    if (
+      analysisMessage.includes(
+        'Student with teacher in an Alternative Program.'
+      )
+    ) {
+      analysisMessage = 'Student with teacher in an Alternative Program.';
+    }
+
+    if (
+      el.teacherCertification === 'Not Found' &&
+      analysisMessage !== 'Student with teacher in an Alternative Program.'
+    ) {
+      analysisMessage = 'Teacher ID not found in the Certifications File.';
+    }
+
+    if (el.studentParentPermission === 'C') {
+      analysisMessage = 'Parent denied services.';
+    }
+
+    el.certAnalysis = analysisMessage;
   });
 }
 
